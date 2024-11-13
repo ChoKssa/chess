@@ -1,0 +1,13 @@
+.waiting-animation span {
+    font-size: 24px;
+}
+
+.dots {
+    animation: blink 1.5s infinite step-start;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}

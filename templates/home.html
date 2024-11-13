@@ -12,23 +12,13 @@
         
         <h1>Welcome to the Party!</h1>
         
-        <!-- Boutons d'action -->
         <div class="button-container">
-            <button onclick="createParty()">Create a Party</button>
+            <button id="createParty" onclick="createParty()">Create a Party</button>
             <button onclick="window.location.href='/join-party'">Join a Party</button>
-            <button onclick="window.location.href='/my-parties'">See Your Parties</button>
             <button onclick="window.location.href='/settings'">Settings</button>
         </div>
 
         <button class="sign-out" onclick="window.location.href='/login'">Sign Out</button>
-
-        <!-- Liste des parties -->
-        <div class="party-list">
-            <h2>Your Parties</h2>
-            <ul id="partyList">
-                <!-- Les nouvelles parties seront ajoutées ici -->
-            </ul>
-        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>

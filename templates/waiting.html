@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting for Opponent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/waiting.css') }}">
+</head>
+<body>
+    <div class="waiting-container">
+        <div class="line"></div>
+        <h1>Waiting for an opponent<span id="dots">...</span></h1>
+        <div class="line"></div>
+        <button onclick="cancelParty()">Back</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/waiting.js') }}"></script>
+</body>
+</html>

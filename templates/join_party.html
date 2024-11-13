@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join a Party</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/join_party.css') }}">
+</head>
+<body>
+    <div class="join-party-container">
+        <img src="{{ url_for('static', filename='assets/Logo.png') }}" alt="Logo" class="logo">
+        
+        <h1>Join a Party</h1>
+        
+        <div class="party-list">
+            <h2>Available Parties:</h2>
+            <ul id="partyList">
+                {% if parties %}
+                    {% for party in parties %}
+                        <li>{{ party }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No parties available. Create one!</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <button onclick="window.location.href='/'" class="back-button">Back to Home</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/join_party.js') }}"></script>
+</body>
+</html>

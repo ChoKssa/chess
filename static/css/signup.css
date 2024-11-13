@@ -6,42 +6,42 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #765757; /* Background color of the page */
+    background-color: #765757;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Takes the full height of the viewport */
+    height: 100vh;
     color: white;
 }
 
 .signup-container {
     padding: 40px;
     border-radius: 8px;
-    width: 100%; /* Use full width of the parent */
-    max-width: 400px; /* Max width for the form */
-    text-align: center; /* Center align the contents of the container */
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
 }
 
 .logo {
-    width: 100%; /* Adjust the size of the logo */
+    width: 100%;
     height: auto;
-    margin-bottom: 20px; /* Space between the logo and the form */
+    margin-bottom: 20px;
 }
 
 h1 {
     margin-bottom: 20px;
     font-size: 24px;
-    width: 100%; /* Ensure it takes the full width available */
+    width: 100%;
 }
 
 .input-container {
-    width: 100%; /* Full width of the container */
+    width: 100%;
     margin-bottom: 15px;
     text-align: left;
 }
 
 input {
-    width: 100%; /* Make the input fields full width of the container */
+    width: 100%;
     height: 6vh;
     padding: 10px;
     margin-top: 5px;
@@ -57,10 +57,10 @@ input::placeholder {
 }
 
 button {
-    width: 100%; /* Make the button full width of the container */
+    width: 100%;
     height: 6vh;
     padding: 10px;
-    background-color: #332323; /* Button color */
+    background-color: #332323;
     color: white;
     border: none;
     border-radius: 20px;
@@ -69,5 +69,5 @@ button {
 }
 
 button:hover {
-    background-color: #1f1414; /* Button color on hover */
+    background-color: #1f1414;
 }

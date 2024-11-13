@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #765757;
+    color: white;
+}
+
+.waiting-container {
+    text-align: center;
+}
+
+.line {
+    width: 80%;
+    height: 2px;
+    background-color: white;
+    margin: 20px auto;
+}
+
+h1 {
+    font-size: 24px;
+    margin: 20px 0;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #332323;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #1f1414;
+}
