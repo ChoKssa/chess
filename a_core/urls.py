@@ -26,5 +26,6 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout, name='logout'),
     path('accounts/', include('allauth.urls')),
+    path('games/', include('a_game.urls')),
     path('', home_view, name="home"),
 ]

@@ -1,0 +1,163 @@
+{% comment %} Page html d'une game
+<!-- game_detail.html -->
+{% extends 'base.html' %} {% block content %}
+<script>
+	var websocket = new WebSocket(
+		"ws://" + window.location.host + "/ws/game/{{ game.id }}/"
+	);
+
+	websocket.onmessage = function (e) {
+		var data = JSON.parse(e.data);
+		if (data.move) {
+			updateBoard(data.move);
+		}
+	};
+
+	websocket.onclose = function (e) {
+		console.error("WebSocket closed unexpectedly");
+	};
+
+	function sendMove(move) {
+		websocket.send(JSON.stringify({ move: move }));
+	}
+
+	function updateBoard(move) {
+		// Mettez à jour l'état du plateau de jeu ici
+	}
+</script>
+
+<h1>Game {{ game.id }}</h1>
+<p>Status: {{ game.status }}</p>
+<p>Players:</p>
+<ul>
+	{% for player in game.players.all %}
+	<li>{{ player.username }}</li>
+	{% endfor %}
+</ul>
+
+<!-- Ajoutez ici le plateau de jeu et les contrôles pour faire un mouvement -->
+{% endblock %} {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Partie d'échecs</title>
+		<style>
+			body {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				margin: 0;
+			}
+			table {
+				border-collapse: collapse;
+				width: 40vmin;
+				height: 40vmin;
+			}
+			th,
+			td {
+				border: 1px solid black;
+				width: 5vmin;
+				height: 5vmin;
+				text-align: center;
+				font-size: 2em;
+			}
+			.black {
+				background-color: #769656;
+			}
+			.white {
+				background-color: #eeeed2;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<h1>ID de la partie : 1234</h1>
+			<table>
+				<tr>
+					<td class="white">♜</td>
+					<td class="black">♞</td>
+					<td class="white">♝</td>
+					<td class="black">♛</td>
+					<td class="white">♚</td>
+					<td class="black">♝</td>
+					<td class="white">♞</td>
+					<td class="black">♜</td>
+				</tr>
+				<tr>
+					<td class="black">♟</td>
+					<td class="white">♟</td>
+					<td class="black">♟</td>
+					<td class="white">♟</td>
+					<td class="black">♟</td>
+					<td class="white">♟</td>
+					<td class="black">♟</td>
+					<td class="white">♟</td>
+				</tr>
+				<!-- Blank squares -->
+				<tr>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+				</tr>
+				<tr>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+				</tr>
+				<tr>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+				</tr>
+				<tr>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+					<td class="black"></td>
+					<td class="white"></td>
+				</tr>
+				<!-- White pieces -->
+				<tr>
+					<td class="white">♙</td>
+					<td class="black">♙</td>
+					<td class="white">♙</td>
+					<td class="black">♙</td>
+					<td class="white">♙</td>
+					<td class="black">♙</td>
+					<td class="white">♙</td>
+					<td class="black">♙</td>
+				</tr>
+				<tr>
+					<td class="black">♖</td>
+					<td class="white">♘</td>
+					<td class="black">♗</td>
+					<td class="white">♕</td>
+					<td class="black">♔</td>
+					<td class="white">♗</td>
+					<td class="black">♘</td>
+					<td class="white">♖</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>
