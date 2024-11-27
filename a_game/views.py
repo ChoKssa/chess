@@ -12,6 +12,15 @@ def create_game(request):
     return redirect('a_game:game_detail', game_id=game.id)
 
 @login_required
+def join_game(request, game_id):
+    game = Game.objects.get(id=game_id)
+    if game.status == 'pending' and game.add_player(request.user):
+        game.status = 'ongoing'
+        game.save()
+    return redirect('game_detail', game_id=game.id)
+
+
+@login_required
 def game_detail(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     initial_board = [

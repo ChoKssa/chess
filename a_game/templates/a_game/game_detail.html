@@ -68,13 +68,19 @@
     </div>
 
     <script>
-        var websocket = new WebSocket("ws://" + window.location.host + "/ws/game/{{ game.id }}/");
+        var websocket = new WebSocket("ws://" + "127.0.0.1:8001" + "/ws/game/{{ game.id }}/");
 
         websocket.onmessage = function (e) {
             var data = JSON.parse(e.data);
+
+            console.log(data);
             if (data.move) {
                 updateBoard(data.move);
             }
+        };
+
+        websocket.onopen = function (e) {
+            console.log("WebSocket connection established");
         };
 
         websocket.onclose = function (e) {
@@ -83,6 +89,12 @@
 
         let selectedSquare = null;
         let possibleMoves = [];
+
+        function movePiece(selectedSquare, data) {
+            websocket.send(JSON.stringify({
+                'move': data
+            }));
+        }
 
 		function handleClick(event) {
 			const td = event.target;
@@ -118,14 +130,17 @@
 					selectedSquare = null;
 				} else {
 					// Vérification si la case cliquée fait partie des déplacements possibles
-					const isMoveValid = possibleMoves.some(move => move.row === row && move.col === col);
-
+					const isMoveValid = possibleMoves.some(move => move.getAttribute('data-row') === row.toString() && move.getAttribute('data-col') === col.toString());
+                    
 					if (isMoveValid) {
 						// Log du déplacement valide
 						console.log(`Déplacement valide : ${piece} de (${selectedSquare.row}, ${selectedSquare.col}) à (${row}, ${col})`);
 
 						// Déplace la pièce
-						movePiece(selectedSquare, { row, col });
+						movePiece(selectedSquare, { 
+                            "from": { "row": selectedSquare.row, "col": selectedSquare.col },
+                            "to": { row, col }
+                         });
 						clearPossibleMoves();
 						selectedSquare = null;
 					} else {

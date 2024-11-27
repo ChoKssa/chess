@@ -1,6 +1,5 @@
 from .Player import Player
 from .Board import Board
-from .NetworkManager import NetworkManager
 from .types.gameState import GameState
 from .types.position import Position
 
@@ -10,7 +9,6 @@ class Game:
         self.blackPlayer = blackPlayer
         self.currentPlayer = None
         self.board = Board()
-        # self.networkManager = NetworkManager()
         self.isGameOver = False
         self.state: GameState = GameState.IN_PROGRESS
 
@@ -49,3 +47,6 @@ class Game:
     def makeMove(self, initialPos: Position, finalPos: Position):
         self.board.makeMove(initialPos, finalPos)
         self.switchPlayer()
+
+    def __repr__(self):
+        return f"Game(whitePlayer={self.whitePlayer}, blackPlayer={self.blackPlayer}, currentPlayer={self.currentPlayer}, board={self.board}, isGameOver={self.isGameOver}, state={self.state})"

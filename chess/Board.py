@@ -19,6 +19,9 @@ class BoardCell:
     def setPiece(self, piece: Piece):
         self.piece = piece
 
+    def __repr__(self):
+        return f"BoardCell(piece={self.piece})"
+
 
 class Board:
     def __init__(self):
@@ -170,3 +173,6 @@ class Board:
                     symbol = piece_symbols.get(piece_type, "?")
                     row_str += (symbol.upper() if cell.piece.isWhite else symbol.lower()) + " "
             print(row_str.strip())
+
+    def __repr__(self):
+        return f"Board(gridSize={self.gridSize}, board={self.board}, history={self.history}, captureHistory={self.captureHistory})"
