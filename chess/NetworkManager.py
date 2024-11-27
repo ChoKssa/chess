@@ -1,20 +1,19 @@
-from abc import ABC, abstractmethod
+from .Game import Game
 
-class NetworkManager(ABC):
+class NetworkManager():
     def __init__(self):
-        super().__init__()
+        self.p1 = None
+        self.p2 = None
+        self.isGameReady = False
+        self.game = None
 
-    # @abstractmethod
-    def send(self, message):
-        pass
+    def setPlayer(self, player):
+        if self.p1 is None:
+            self.p1 = player
+        else:
+            self.p2 = player
+        self.isGameReady = True
+        self.game = Game(self.p1, self.p2)
 
-    # @abstractmethod
-    def receiveMove(self, move):
-        pass
-
-    # @abstractmethod
-    def disconnectPlayer(self):
-        pass
-
-    def broadcastGameState(self, gameState):
+    def getGameBoard(self):
         pass
