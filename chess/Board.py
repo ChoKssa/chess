@@ -1,6 +1,7 @@
 from typing import List
 from .MoveHistory import MoveHistory
 from .pieces import Pawn, Rook, Knight, Bishop, Queen, King, Piece
+from .types.position import Position
 
 class BoardCell:
     def __init__(self, piece=None):
@@ -39,8 +40,23 @@ class Board:
     def validateMove(self, move):
         pass
 
-    def getPieceAtPosition(self, position):
-        pass
+    def getPieceAtPosition(self, position: Position):
+        return self.board[position.row][position.col].getPiece()
+
+    def makeMove(self, initialPos: Position, finalPos: Position):
+        piece = self.getPieceAtPosition(initialPos)
+        captured_piece = self.getPieceAtPosition(finalPos)
+
+        if piece is None:
+            return False
+
+        if captured_piece is not None:
+            self.captureHistory.append(captured_piece)
+
+
+        self.board[finalPos.row][finalPos.col].setPiece(piece)
+        self.board[initialPos.row][initialPos.col].setPiece(None)
+        return True
 
     def isCheck(self):
         pass
