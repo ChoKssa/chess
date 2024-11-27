@@ -9,3 +9,6 @@ class Player():
 
     def makeMove(self, move):
         pass
+
+    def __eq__(self, value):
+        return self.name == value.name and self.isWhite == value.isWhite
