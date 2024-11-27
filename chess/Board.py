@@ -4,6 +4,7 @@ from .pieces import Pawn, Rook, Knight, Bishop, Queen, King, Piece
 from .types.position import Position
 from .types.gameState import GameState
 from .Player import Player
+import copy
 
 class BoardCell:
     def __init__(self, piece=None):
@@ -81,16 +82,18 @@ class Board:
                     continue
                 if piece.isWhite == isWhite:
                     continue
-                valid_moves = piece.getValidMoves(self)
+                # valid_moves = piece.getValidMoves(self)
 
-                print(piece, valid_moves)
+                # if piece.__class__.__name__ == "Pawn":
+                #     print(piece, valid_moves)
                 if king_position in piece.getValidMoves(self):
                     return True
+        return False
 
 
     def simulateMove(self, initialPos: Position, finalPos: Position):
         fake_board = Board()
-        fake_board.board = self.board.copy()
+        fake_board.board = copy.deepcopy(self.board)
         piece = fake_board.getPieceAtPosition(initialPos)
 
         if piece is None:
@@ -103,10 +106,10 @@ class Board:
         return isCheck
 
     def isCheckmate(self, isWhite: bool):
-        isCheck = self.isCheck(isWhite)
+        # isCheck = self.isCheck(isWhite)
 
-        if not isCheck:
-            return False
+        # if not isCheck:
+        #     return False
 
         for row in range(self.gridSize):
             for col in range(self.gridSize):
@@ -117,10 +120,10 @@ class Board:
                     continue
 
                 valid_moves = piece.getValidMoves(self)
-                # print(piece)
-                # print(valid_moves)
                 for move in valid_moves:
-                    if not self.simulateMove(piece.position, move):
+                    t = self.simulateMove(piece.position, move)
+                    if t == False:
+                        print("Not Checkmate")
                         return False
         return True
 

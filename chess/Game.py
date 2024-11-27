@@ -34,7 +34,13 @@ class Game:
         return self.currentPlayer
 
     def checkEndConditions(self):
-        print(self.board.getStatus())
+        status = self.board.getStatus()
+
+        if status == "Checkmate":
+            self.state = GameState.WHITE_WIN if self.currentPlayer == self.whitePlayer else GameState.BLACK_WIN
+            self.isGameOver = True
+
+        return self.state
 
     def resetGame(self):
         self.board = Board()

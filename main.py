@@ -13,9 +13,8 @@ def main():
     game.makeMove(Position(1, 4), Position(2, 4))
     game.makeMove(Position(6, 6), Position(4, 6))
     game.makeMove(Position(0, 3), Position(4, 7))
-
     game.board.debugPrintBoard()
-    game.checkEndConditions()
+    print(game.checkEndConditions())
 
 if __name__ == "__main__":
     main()
