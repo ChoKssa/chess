@@ -34,7 +34,7 @@ class Game:
         return self.currentPlayer
 
     def checkEndConditions(self):
-        pass
+        print(self.board.getStatus())
 
     def resetGame(self):
         self.board = Board()

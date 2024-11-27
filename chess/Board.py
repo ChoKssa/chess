@@ -2,6 +2,8 @@ from typing import List
 from .MoveHistory import MoveHistory
 from .pieces import Pawn, Rook, Knight, Bishop, Queen, King, Piece
 from .types.position import Position
+from .types.gameState import GameState
+from .Player import Player
 
 class BoardCell:
     def __init__(self, piece=None):
@@ -28,14 +30,14 @@ class Board:
         piece_order: List[Piece] = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
 
         for col in range(self.gridSize):
-            self.board[1][col].setPiece(Pawn(isWhite=False, position=(1, col)))
-            self.board[6][col].setPiece(Pawn(isWhite=True, position=(6, col)))
+            self.board[1][col].setPiece(Pawn(isWhite=False, position=Position(1, col)))
+            self.board[6][col].setPiece(Pawn(isWhite=True, position=Position(6, col)))
 
         for col, piece_class in enumerate(piece_order):
-            self.board[0][col].setPiece(piece_class(isWhite=False, position=(0, col)))
+            self.board[0][col].setPiece(piece_class(isWhite=False, position=Position(0, col)))
 
         for col, piece_class in enumerate(piece_order):
-            self.board[7][col].setPiece(piece_class(isWhite=True, position=(7, col)))
+            self.board[7][col].setPiece(piece_class(isWhite=True, position=Position(7, col)))
 
     def validateMove(self, move):
         pass
@@ -56,19 +58,93 @@ class Board:
 
         self.board[finalPos.row][finalPos.col].setPiece(piece)
         self.board[initialPos.row][initialPos.col].setPiece(None)
+        piece.position = finalPos
+        piece.hasMoved = True
         return True
 
-    def isCheck(self):
-        pass
+    def getKingPosition(self, isWhite: bool) -> Position:
+        for row in range(self.gridSize):
+            for col in range(self.gridSize):
+                piece = self.board[row][col].getPiece()
+                if isinstance(piece, King) and piece.isWhite == isWhite:
+                    return Position(row, col)
+        return None
 
-    def isCheckmate(self):
-        pass
+
+    def isCheck(self, isWhite: bool):
+        king_position = self.getKingPosition(isWhite=isWhite)
+
+        for row in range(self.gridSize):
+            for col in range(self.gridSize):
+                piece = self.board[row][col].getPiece()
+                if piece is None:
+                    continue
+                if piece.isWhite == isWhite:
+                    continue
+                valid_moves = piece.getValidMoves(self)
+
+                print(piece, valid_moves)
+                if king_position in piece.getValidMoves(self):
+                    return True
+
+
+    def simulateMove(self, initialPos: Position, finalPos: Position):
+        fake_board = Board()
+        fake_board.board = self.board.copy()
+        piece = fake_board.getPieceAtPosition(initialPos)
+
+        if piece is None:
+            return False
+
+        fake_board.board[finalPos.row][finalPos.col].setPiece(piece)
+        fake_board.board[initialPos.row][initialPos.col].setPiece(None)
+
+        isCheck = fake_board.isCheck(piece.isWhite)
+        return isCheck
+
+    def isCheckmate(self, isWhite: bool):
+        isCheck = self.isCheck(isWhite)
+
+        if not isCheck:
+            return False
+
+        for row in range(self.gridSize):
+            for col in range(self.gridSize):
+                piece = self.board[row][col].getPiece()
+                if piece is None:
+                    continue
+                if piece.isWhite != isWhite:
+                    continue
+
+                valid_moves = piece.getValidMoves(self)
+                # print(piece)
+                # print(valid_moves)
+                for move in valid_moves:
+                    if not self.simulateMove(piece.position, move):
+                        return False
+        return True
 
     def isDraw(self):
         pass
 
     def isStalemate(self):
         pass
+
+    def getStatus(self):
+        if self.isCheckmate(True):
+            return "Checkmate"
+        if self.isCheckmate(False):
+            return "Checkmate"
+        elif self.isDraw():
+            return "Draw"
+        elif self.isStalemate():
+            return "Stalemate"
+        elif self.isCheck(True):
+            return "Check"
+        elif self.isCheck(False):
+            return "Check"
+        else:
+            return
 
     def debugPrintBoard(self):
         piece_symbols = {
