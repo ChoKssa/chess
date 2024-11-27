@@ -1,20 +1,16 @@
 class Position:
-    def __init__(self, file: str, rank: int):
-        if file not in 'abcdefgh' or not (1 <= rank <= 8):
-            raise ValueError("Invalid position on the chess board")
-        self.file = file
-        self.rank = rank
-
-    def __repr__(self):
-        return f"Position({self.file!r}, {self.rank!r})"
-
-    def __str__(self):
-        return f"{self.file}{self.rank}"
+    def __init__(self, row: int, col: int):
+        self.row = row
+        self.col = col
 
     def __eq__(self, other):
-        if isinstance(other, Position):
-            return self.file == other.file and self.rank == other.rank
-        return False
+        return isinstance(other, Position) and self.row == other.row and self.col == other.col
 
-    def __hash__(self):
-        return hash((self.file, self.rank))
+    def __repr__(self):
+        return f"({self.row}, {self.col})"
+
+    def isWithinBounds(self) -> bool:
+        return 0 <= self.row < 8 and 0 <= self.col < 8
+
+    def add(self, dr: int, dc: int):
+        return Position(self.row + dr, self.col + dc)
