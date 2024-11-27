@@ -9,7 +9,7 @@ class Piece(ABC):
         self.captured = False
 
     @abstractmethod
-    def getValidMoves(self, board, start):
+    def getValidMoves(self, board):
         pass
 
     def move(self, board, newPosition: Position):
@@ -17,3 +17,6 @@ class Piece(ABC):
 
     def isCaptured(self):
         return self.captured
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.isWhite}, {self.position})"

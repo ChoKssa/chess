@@ -2,6 +2,7 @@ from .Player import Player
 from .Board import Board
 from .NetworkManager import NetworkManager
 from .types.gameState import GameState
+from .types.position import Position
 
 class Game:
     def __init__(self, whitePlayer: Player, blackPlayer: Player):
@@ -17,26 +18,34 @@ class Game:
         self.board.setupBoard()
         self.currentPlayer = self.whitePlayer
 
-    def endGame(self, winner):
-        pass
+    # def endGame(self, winner):
+    #     pass
 
     def switchPlayer(self):
-        pass
+        if self.currentPlayer == self.whitePlayer:
+            self.currentPlayer = self.blackPlayer
+        else:
+            self.currentPlayer = self.whitePlayer
 
     def getBoard(self):
-        pass
+        return self.board
 
     def getCurrentPlayer(self):
-        pass
+        return self.currentPlayer
 
     def checkEndConditions(self):
-        pass
+        status = self.board.getStatus()
+
+        if status == "Checkmate":
+            self.state = GameState.WHITE_WIN if self.currentPlayer == self.whitePlayer else GameState.BLACK_WIN
+            self.isGameOver = True
+
+        return self.state
 
     def resetGame(self):
-        pass
+        self.board = Board()
+        self.startGame()
 
-    def validateMove(self, player, move):
-        pass
-
-    def handlePlayerMove(self, player, move):
-        pass
+    def makeMove(self, initialPos: Position, finalPos: Position):
+        self.board.makeMove(initialPos, finalPos)
+        self.switchPlayer()

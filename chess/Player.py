@@ -9,3 +9,9 @@ class Player():
 
     def makeMove(self, move):
         pass
+
+    def __eq__(self, value):
+        return self.name == value.name and self.isWhite == value.isWhite
+
+    def __repr__(self):
+        return f"{self.name} is {'white' if self.isWhite else 'black'}"
