@@ -1,164 +1,292 @@
-{% load static %} {% comment %} Page html d'une game
-<!-- game_detail.html -->
-{% extends 'base.html' %} {% block content %}
-<script>
-	var websocket = new WebSocket(
-		"ws://" + window.location.host + "/ws/game/{{ game.id }}/"
-	);
-
-	websocket.onmessage = function (e) {
-		var data = JSON.parse(e.data);
-		if (data.move) {
-			updateBoard(data.move);
-		}
-	};
-
-	websocket.onclose = function (e) {
-		console.error("WebSocket closed unexpectedly");
-	};
-
-	function sendMove(move) {
-		websocket.send(JSON.stringify({ move: move }));
-	}
-
-	function updateBoard(move) {
-		// Mettez à jour l'état du plateau de jeu ici
-	}
-</script>
-
-<h1>Game {{ game.id }}</h1>
-<p>Status: {{ game.status }}</p>
-<p>Players:</p>
-<ul>
-	{% for player in game.players.all %}
-	<li>{{ player.username }}</li>
-	{% endfor %}
-</ul>
-
-<!-- Ajoutez ici le plateau de jeu et les contrôles pour faire un mouvement -->
-{% endblock %} {% endcomment %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Partie d'échecs</title>
-		<style>
-			body {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				height: 100vh;
-				margin: 0;
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <title>Partie d'Échecs</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+			background-color: #765757;
+        }
+        table {
+            border-collapse: collapse;
+            width: 40vmin;
+            height: 40vmin;
+        }
+        th, td {
+            border: 1px solid black;
+            width: 5vmin;
+            height: 5vmin;
+            text-align: center;
+            font-size: 2em;
+            cursor: pointer;
+        }
+        .black {
+            background-color: #769656;
+        }
+        .white {
+            background-color: #eeeed2;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>ID de la partie : {{ game.id }}</h1>
+        <p>Status: {{ game.status }}</p>
+        <p>Players:</p>
+        <ul>
+            {% for player in game.players.all %}
+            <li>{{ player.username }}</li>
+            {% endfor %}
+        </ul>
+
+        <table id="chess-board">
+            {% for row in board %}
+                <tr>
+                    {% for col in row %}
+                        {% if forloop.parentloop.counter0|add:forloop.counter0|divisibleby:2 %}
+                            <td class="white" data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}" onclick="handleClick(event)">
+                        {% else %}
+                            <td class="black" data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}" onclick="handleClick(event)">
+                        {% endif %}
+                            {{ col }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        var websocket = new WebSocket("ws://" + window.location.host + "/ws/game/{{ game.id }}/");
+
+        websocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            if (data.move) {
+                updateBoard(data.move);
+            }
+        };
+
+        websocket.onclose = function (e) {
+            console.error("WebSocket closed unexpectedly");
+        };
+
+        let selectedSquare = null;
+        let possibleMoves = [];
+
+		function handleClick(event) {
+			const td = event.target;
+			const row = parseInt(td.getAttribute('data-row'));
+			const col = parseInt(td.getAttribute('data-col'));
+			const piece = td.innerText.trim();
+
+			// Log de la case cliquée
+			console.log(`Case cliquée : Ligne ${row}, Colonne ${col}`);
+
+			// Si un pion ou une autre pièce est cliquée
+			if (piece === '♙' || piece === '♟') {
+				console.log(`Pion cliqué : ${piece} à la position ${row}, ${col}`);
+			} else if (piece === '♖' || piece === '♜') {
+				console.log(`Tour cliquée : ${piece} à la position ${row}, ${col}`);
+			} else if (piece === '♘' || piece === '♞') {
+				console.log(`Cavalier cliqué : ${piece} à la position ${row}, ${col}`);
+			} else if (piece === '♗' || piece === '♝') {
+				console.log(`Fou cliqué : ${piece} à la position ${row}, ${col}`);
+			} else if (piece === '♔' || piece === '♚') {
+				console.log(`Roi cliqué : ${piece} à la position ${row}, ${col}`);
+			} else if (piece === '♕' || piece === '♛') {
+				console.log(`Reine cliquée : ${piece} à la position ${row}, ${col}`);
 			}
-			table {
-				border-collapse: collapse;
-				width: 40vmin;
-				height: 40vmin;
+
+			if (selectedSquare) {
+				const prevSelectedCell = document.querySelector(`[data-row="${selectedSquare.row}"][data-col="${selectedSquare.col}"]`);
+				if (prevSelectedCell) prevSelectedCell.style.backgroundColor = '';
+
+				if (selectedSquare.row === row && selectedSquare.col === col) {
+					td.style.backgroundColor = '';
+					clearPossibleMoves();
+					selectedSquare = null;
+				} else {
+					// Vérification si la case cliquée fait partie des déplacements possibles
+					const isMoveValid = possibleMoves.some(move => move.row === row && move.col === col);
+
+					if (isMoveValid) {
+						// Log du déplacement valide
+						console.log(`Déplacement valide : ${piece} de (${selectedSquare.row}, ${selectedSquare.col}) à (${row}, ${col})`);
+
+						// Déplace la pièce
+						movePiece(selectedSquare, { row, col });
+						clearPossibleMoves();
+						selectedSquare = null;
+					} else {
+						// Si ce n'est pas un mouvement valide, réinitialiser l'état
+						clearPossibleMoves();
+						selectedSquare = null;
+						td.style.backgroundColor = '';
+					}
+				}
+			} else {
+				if (piece) {
+					selectedSquare = { row: row, col: col };
+					td.style.backgroundColor = '#ffeb3b';
+					clearPossibleMoves();
+
+					// Affichage des déplacements possibles selon le type de pièce
+					if (piece === '♙' || piece === '♟') {
+						console.log(`Pion sélectionné : ${piece} à la position ${row}, ${col}`);
+						showPawnMoves(row, col);
+					} else if (piece === '♖' || piece === '♜') {
+						console.log(`Tour sélectionnée : ${piece} à la position ${row}, ${col}`);
+						showRookMoves(row, col);
+					} else if (piece === '♘' || piece === '♞') {
+						console.log(`Cavalier sélectionné : ${piece} à la position ${row}, ${col}`);
+						showKnightMoves(row, col);
+					} else if (piece === '♗' || piece === '♝') {
+						console.log(`Fou sélectionné : ${piece} à la position ${row}, ${col}`);
+						showBishopMoves(row, col);
+					} else if (piece === '♔' || piece === '♚') {
+						console.log(`Roi sélectionné : ${piece} à la position ${row}, ${col}`);
+						showKingMoves(row, col);
+					} else if (piece === '♕' || piece === '♛') {
+						console.log(`Reine sélectionnée : ${piece} à la position ${row}, ${col}`);
+						showQueenMoves(row, col);
+					}
+				}
 			}
-			th,
-			td {
-				border: 1px solid black;
-				width: 5vmin;
-				height: 5vmin;
-				text-align: center;
-				font-size: 2em;
+		}
+
+
+
+		function showPawnMoves(row, col) {
+			const piece = document.querySelector(`[data-row="${row}"][data-col="${col}"]`).innerText.trim();
+			const direction = (piece === '♟') ? -1 : 1;
+			let moves = [];
+
+			if (isValidMove(row + direction, col)) {
+				moves.push({ row: row + direction, col: col });
 			}
-			.black {
-				background-color: #769656;
+
+			if ((row === 1 && piece === '♟') || (row === 6 && piece === '♙')) {
+				if (isValidMove(row + 2 * direction, col)) {
+					moves.push({ row: row + 2 * direction, col: col });
+				}
 			}
-			.white {
-				background-color: #eeeed2;
-			}
-		</style>
-	</head>
-	<body>
-		<div>
-			<h1>ID de la partie : 1234</h1>
-			<table>
-				<tr>
-					<td class="white">♜</td>
-					<td class="black">♞</td>
-					<td class="white">♝</td>
-					<td class="black">♛</td>
-					<td class="white">♚</td>
-					<td class="black">♝</td>
-					<td class="white">♞</td>
-					<td class="black">♜</td>
-				</tr>
-				<tr>
-					<td class="black">♟</td>
-					<td class="white">♟</td>
-					<td class="black">♟</td>
-					<td class="white">♟</td>
-					<td class="black">♟</td>
-					<td class="white">♟</td>
-					<td class="black">♟</td>
-					<td class="white">♟</td>
-				</tr>
-				<!-- Blank squares -->
-				<tr>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-				</tr>
-				<tr>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-				</tr>
-				<tr>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-				</tr>
-				<tr>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-					<td class="black"></td>
-					<td class="white"></td>
-				</tr>
-				<!-- White pieces -->
-				<tr>
-					<td class="white">♙</td>
-					<td class="black">♙</td>
-					<td class="white">♙</td>
-					<td class="black">♙</td>
-					<td class="white">♙</td>
-					<td class="black">♙</td>
-					<td class="white">♙</td>
-					<td class="black">♙</td>
-				</tr>
-				<tr>
-					<td class="black">♖</td>
-					<td class="white">♘</td>
-					<td class="black">♗</td>
-					<td class="white">♕</td>
-					<td class="black">♔</td>
-					<td class="white">♗</td>
-					<td class="black">♘</td>
-					<td class="white">♖</td>
-				</tr>
-			</table>
-		</div>
-		<script src="{% static 'js/game_detail.js' %}"></script>
-	</body>
+
+			moves.forEach(move => {
+				const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+				if (cell) {
+					cell.classList.add('highlight');
+					possibleMoves.push(cell);
+				}
+			});
+		}
+
+        function showRookMoves(row, col) {
+            let moves = [];
+            for (let i = 1; i < 8; i++) {
+                if (isValidMove(row + i, col)) moves.push({ row: row + i, col: col });
+                if (isValidMove(row - i, col)) moves.push({ row: row - i, col: col });
+                if (isValidMove(row, col + i)) moves.push({ row: row, col: col + i });
+                if (isValidMove(row, col - i)) moves.push({ row: row, col: col - i });
+            }
+
+            moves.forEach(move => {
+                const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+                if (cell) {
+                    cell.classList.add('highlight');
+                    possibleMoves.push(cell);
+                }
+            });
+        }
+
+        function showKnightMoves(row, col) {
+            const knightMoves = [
+                { row: row + 2, col: col + 1 },
+                { row: row + 2, col: col - 1 },
+                { row: row - 2, col: col + 1 },
+                { row: row - 2, col: col - 1 },
+                { row: row + 1, col: col + 2 },
+                { row: row + 1, col: col - 2 },
+                { row: row - 1, col: col + 2 },
+                { row: row - 1, col: col - 2 }
+            ];
+
+            knightMoves.forEach(move => {
+                if (isValidMove(move.row, move.col)) {
+                    const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+                    if (cell) {
+                        cell.classList.add('highlight');
+                        possibleMoves.push(cell);
+                    }
+                }
+            });
+        }
+
+        function showBishopMoves(row, col) {
+            let moves = [];
+            for (let i = 1; i < 8; i++) {
+                if (isValidMove(row + i, col + i)) moves.push({ row: row + i, col: col + i });
+                if (isValidMove(row - i, col - i)) moves.push({ row: row - i, col: col - i });
+                if (isValidMove(row + i, col - i)) moves.push({ row: row + i, col: col - i });
+                if (isValidMove(row - i, col + i)) moves.push({ row: row - i, col: col + i });
+            }
+
+            moves.forEach(move => {
+                const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+                if (cell) {
+                    cell.classList.add('highlight');
+                    possibleMoves.push(cell);
+                }
+            });
+        }
+
+        function showQueenMoves(row, col) {
+            showRookMoves(row, col);
+            showBishopMoves(row, col);
+        }
+
+        function showKingMoves(row, col) {
+            const kingMoves = [
+                { row: row + 1, col: col },
+                { row: row - 1, col: col },
+                { row: row, col: col + 1 },
+                { row: row, col: col - 1 },
+                { row: row + 1, col: col + 1 },
+                { row: row + 1, col: col - 1 },
+                { row: row - 1, col: col + 1 },
+                { row: row - 1, col: col - 1 }
+            ];
+
+            kingMoves.forEach(move => {
+                if (isValidMove(move.row, move.col)) {
+                    const cell = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+                    if (cell) {
+                        cell.classList.add('highlight');
+                        possibleMoves.push(cell);
+                    }
+                }
+            });
+        }
+
+        function isValidMove(row, col) {
+            return row >= 0 && row < 8 && col >= 0 && col < 8;
+        }
+        function clearPossibleMoves() {
+            possibleMoves.forEach(cell => {
+                cell.classList.remove('highlight');
+            });
+            possibleMoves = [];
+        }
+    </script>
+</body>
 </html>
