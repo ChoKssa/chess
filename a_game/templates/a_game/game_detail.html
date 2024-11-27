@@ -1,4 +1,4 @@
-{% comment %} Page html d'une game
+{% load static %} {% comment %} Page html d'une game
 <!-- game_detail.html -->
 {% extends 'base.html' %} {% block content %}
 <script>
@@ -159,5 +159,6 @@
 				</tr>
 			</table>
 		</div>
+		<script src="{% static 'js/game_detail.js' %}"></script>
 	</body>
 </html>

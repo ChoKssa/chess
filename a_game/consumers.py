@@ -14,7 +14,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Quitter un groupe
         await self.channel_layer.group_discard(
             self.game_group_name,
             self.channel_name
@@ -22,21 +21,3 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        move = text_data_json['move']
-
-        # Envoyer un événement à un groupe
-        await self.channel_layer.group_send(
-            self.game_group_name,
-            {
-                'type': 'game_move',
-                'move': move
-            }
-        )
-
-    async def game_move(self, event):
-        move = event['move']
-
-        # Envoyer le mouvement aux WebSocket clients
-        await self.send(text_data=json.dumps({
-            'move': move
-        }))
