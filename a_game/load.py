@@ -18,8 +18,8 @@ def load_game_from_model(game_model: GameModel) -> Game:
         Game: Une instance de la classe Python Game.
     """
     # Créer les joueurs
-    white_player = Player(name=game_model.white_player.username, is_white=True) if game_model.white_player else None
-    black_player = Player(name=game_model.black_player.username, is_white=False) if game_model.black_player else None
+    white_player = Player(game_model.white_player.username, True) if game_model.white_player else None
+    black_player = Player(game_model.black_player.username, False) if game_model.black_player else None
 
     # Initialiser la classe Game
     python_game = Game(whitePlayer=white_player, blackPlayer=black_player)
@@ -91,18 +91,12 @@ def update_model_from_game(python_game: Game, game_model: GameModel) -> GameMode
     Returns:
         GameModel: L'instance du modèle mise à jour.
     """
-    # Mettre à jour les joueurs
-    if python_game.whitePlayer:
-        game_model.white_player = python_game.whitePlayer.user if hasattr(python_game.whitePlayer, 'user') else None
-    if python_game.blackPlayer:
-        game_model.black_player = python_game.blackPlayer.user if hasattr(python_game.blackPlayer, 'user') else None
-
     # Mettre à jour le statut
     game_model.status = 'finished' if python_game.isGameOver else 'ongoing'
 
     # Mettre à jour le joueur actuel
     if python_game.currentPlayer:
-        game_model.current_turn = 'WHITE' if python_game.currentPlayer.is_white else 'BLACK'
+        game_model.current_turn = 'WHITE' if python_game.currentPlayer.isWhite else 'BLACK'
 
     # Sauvegarder l'état du plateau en JSON
     game_model.board_state = json.dumps(dump_board_to_state(python_game.board))
