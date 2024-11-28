@@ -3,8 +3,9 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.shortcuts import get_object_or_404
 from a_game.models import Game
+from chess.Game import Game as GameLogic
 from asgiref.sync import sync_to_async
-from .load import load_game_from_model, update_model_from_game
+from .load import load_game_from_model, update_model_from_game, dump_board_to_state
 from chess.types.position import Position
 from django.contrib.auth.models import User
 
@@ -51,13 +52,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         print(white_player, "is the white player")  # Cela affichera l'utilisateur associé ou None
         black_player = await sync_to_async(lambda: self.game.black_player)()
         print(black_player, "is the black player")  # Cela affichera l'utilisateur associé ou None
+        board_state = []
+        if self.game.board_state:
+            board_state = self.generate_board(self.game.board_state)
+        else:
+            new_game = GameLogic(None, None)
+            new_game.startGame()
+            board_state = self.generate_board(json.dumps(dump_board_to_state(new_game.board)))
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
         await self.accept()
         await self.send(text_data=json.dumps({
-            'board': self.generate_board(self.game.board_state) if self.game.board_state else [],
+            'board': board_state,
             'current_turn': self.game.current_turn,
             'status': self.game.status,
         }))
