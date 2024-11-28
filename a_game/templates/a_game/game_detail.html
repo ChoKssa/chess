@@ -87,18 +87,19 @@
 
 					if (cell) {
 						if (square && square.piece && square.piece.type) {
+                            console.log(square.piece);
 							if (square.piece.type === 'Pawn') {
-								square.piece.type = '♙';
+								square.piece.type = square.piece.is_white ? '♟' : '♙';
 							} else if (square.piece.type === 'Rook') {
-								square.piece.type = '♖';  
+								square.piece.type = square.piece.is_white ? '♜': '♖';  
 							} else if (square.piece.type === 'Knight') {
-								square.piece.type = '♘';
+								square.piece.type = square.piece.is_white ? '♞' : '♘';
 							} else if (square.piece.type === 'Bishop') {
-								square.piece.type = '♗';
+								square.piece.type = square.piece.is_white ? '♝' : '♗';
 							} else if (square.piece.type === 'Queen') {
-								square.piece.type = '♕';
+								square.piece.type = square.piece.is_white ? '♛' : '♕';
 							} else if (square.piece.type === 'King') {
-								square.piece.type = '♔';
+								square.piece.type = square.piece.is_white ? '♚' : '♔';
 							}
 
 							cell.innerText = square.piece.type;
