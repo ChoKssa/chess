@@ -73,32 +73,43 @@
 		websocket.onmessage = function (e) {
 			var data = JSON.parse(e.data);
 			console.log(data);
-			if (data.move) {
-				updateBoard(data.move);
-			}
+			updateBoard(data);
 		};
 
-		function updateBoard(move) {
-			const fromRow = move.from.row;
-			const fromCol = move.from.col;
-			const toRow = move.to.row;
-			const toCol = move.to.col;
-			const piece = move.piece;
+		function updateBoard(data) {
+			const board = data.board;
 
-			const fromCell = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
-			if (fromCell) {
-				fromCell.innerText = '';
-			}
+			for (let row = 0; row < 8; row++) {
+				for (let col = 0; col < 8; col++) {
+					const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
 
-			const toCell = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
-			if (toCell) {
-				toCell.innerText = piece;
+					const square = board.find(sq => sq.row === row && sq.col === col);
+
+					if (cell) {
+						if (square && square.piece && square.piece.type) {
+							if (square.piece.type === 'Pawn') {
+								square.piece.type = '♙';
+							} else if (square.piece.type === 'Rook') {
+								square.piece.type = '♖';  
+							} else if (square.piece.type === 'Knight') {
+								square.piece.type = '♘';
+							} else if (square.piece.type === 'Bishop') {
+								square.piece.type = '♗';
+							} else if (square.piece.type === 'Queen') {
+								square.piece.type = '♕';
+							} else if (square.piece.type === 'King') {
+								square.piece.type = '♔';
+							}
+
+							cell.innerText = square.piece.type;
+						} else {
+							cell.innerText = '';
+						}
+					}
+				}
 			}
 		}
 
-        websocket.onopen = function (e) {
-            console.log("WebSocket connection established");
-        };
 
         websocket.onclose = function (e) {
             console.error("WebSocket closed unexpectedly");
