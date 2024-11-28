@@ -70,14 +70,31 @@
     <script>
         var websocket = new WebSocket("ws://" + "127.0.0.1:8001" + "/ws/game/{{ game.id }}/");
 
-        websocket.onmessage = function (e) {
-            var data = JSON.parse(e.data);
+		websocket.onmessage = function (e) {
+			var data = JSON.parse(e.data);
+			console.log(data);
+			if (data.move) {
+				updateBoard(data.move);
+			}
+		};
 
-            console.log(data);
-            if (data.move) {
-                updateBoard(data.move);
-            }
-        };
+		function updateBoard(move) {
+			const fromRow = move.from.row;
+			const fromCol = move.from.col;
+			const toRow = move.to.row;
+			const toCol = move.to.col;
+			const piece = move.piece;
+
+			const fromCell = document.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
+			if (fromCell) {
+				fromCell.innerText = '';
+			}
+
+			const toCell = document.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+			if (toCell) {
+				toCell.innerText = piece;
+			}
+		}
 
         websocket.onopen = function (e) {
             console.log("WebSocket connection established");
@@ -102,10 +119,8 @@
 			const col = parseInt(td.getAttribute('data-col'));
 			const piece = td.innerText.trim();
 
-			// Log de la case cliquée
 			console.log(`Case cliquée : Ligne ${row}, Colonne ${col}`);
 
-			// Si un pion ou une autre pièce est cliquée
 			if (piece === '♙' || piece === '♟') {
 				console.log(`Pion cliqué : ${piece} à la position ${row}, ${col}`);
 			} else if (piece === '♖' || piece === '♜') {
@@ -129,14 +144,11 @@
 					clearPossibleMoves();
 					selectedSquare = null;
 				} else {
-					// Vérification si la case cliquée fait partie des déplacements possibles
 					const isMoveValid = possibleMoves.some(move => move.getAttribute('data-row') === row.toString() && move.getAttribute('data-col') === col.toString());
                     
 					if (isMoveValid) {
-						// Log du déplacement valide
 						console.log(`Déplacement valide : ${piece} de (${selectedSquare.row}, ${selectedSquare.col}) à (${row}, ${col})`);
 
-						// Déplace la pièce
 						movePiece(selectedSquare, { 
                             "from": { "row": selectedSquare.row, "col": selectedSquare.col },
                             "to": { row, col }
@@ -144,7 +156,6 @@
 						clearPossibleMoves();
 						selectedSquare = null;
 					} else {
-						// Si ce n'est pas un mouvement valide, réinitialiser l'état
 						clearPossibleMoves();
 						selectedSquare = null;
 						td.style.backgroundColor = '';
@@ -156,7 +167,6 @@
 					td.style.backgroundColor = '#ffeb3b';
 					clearPossibleMoves();
 
-					// Affichage des déplacements possibles selon le type de pièce
 					if (piece === '♙' || piece === '♟') {
 						console.log(`Pion sélectionné : ${piece} à la position ${row}, ${col}`);
 						showPawnMoves(row, col);
