@@ -99,21 +99,22 @@ class GameConsumer(AsyncWebsocketConsumer):
             game = update_model_from_game(game, self.game)
 
             await sync_to_async(game.save)()
-            await self.send_move_update()
+            await self.send_game_update()
 
-    async def send_move_update(self):
+    async def send_game_update(self):
         game = await sync_to_async(get_object_or_404)(Game, id=self.game_id)
         updated_board =self.generate_board(game.board_state)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'game_board_update',
+                'type': 'game_update',
                 'board': updated_board,
+                'current_turn': game.current_turn,
             }
         )
 
-    async def game_board_update(self, event):
-        updated_board = event['board']
+    async def game_update(self, event):
         await self.send(text_data=json.dumps({
-            'board': updated_board,
+            'board': event['board'],
+            'current_turn': event['current_turn'],
         }))
