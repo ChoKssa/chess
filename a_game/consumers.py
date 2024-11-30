@@ -24,19 +24,16 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         if self.game.status == "not_started":
             if self.game.white_player is None:
-                print("Adding white player")
                 if not await sync_to_async(self.game.add_player)((self.user)):
                     await self.close()
                     return
             elif self.game.black_player is None and self.game.white_player != self.user:
-                print("Adding black player")
                 if not await sync_to_async(self.game.add_player)((self.user)):
                     await self.close()
                     return
                 self.game.status = "ongoing"
                 await sync_to_async(self.game.save)()
             elif self.user not in [self.game.white_player, self.game.black_player]:
-                print("Game is full")
                 await self.close()
                 return
 
@@ -49,9 +46,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await sync_to_async(self.game.refresh_from_db)()
         white_player = await sync_to_async(lambda: self.game.white_player)()
-        print(white_player, "is the white player")  # Cela affichera l'utilisateur associé ou None
         black_player = await sync_to_async(lambda: self.game.black_player)()
-        print(black_player, "is the black player")  # Cela affichera l'utilisateur associé ou None
         board_state = []
         if self.game.board_state:
             board_state = self.generate_board(self.game.board_state)
@@ -98,10 +93,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         game = load_game_from_model(self.game)
 
         if move:
-            print(move)
             initPos = Position(move['from']["row"], move['from']['col'])
             finalPos = Position(move['to']["row"], move['to']["col"])
-            print(initPos, finalPos)
             game.makeMove(initPos, finalPos)
             game.board.debugPrintBoard()
             game = update_model_from_game(game, self.game)

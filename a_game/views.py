@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Game
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.db.models import Count
 import json
 
 @login_required
@@ -12,12 +13,18 @@ def create_game(request):
     return redirect('a_game:game_detail', game_id=game.id)
 
 @login_required
-def join_game(request, game_id):
-    game = Game.objects.get(id=game_id)
-    if game.status == 'pending' and game.add_player(request.user):
-        game.status = 'ongoing'
+def join_game(request):
+    game = (
+        Game.objects.annotate(player_count=Count('players'))
+        .filter(player_count=1, status='not_started')
+        .first()
+    )
+    if not game:
+        game = Game.objects.create()
+        game.players.add(request.user)
         game.save()
-    return redirect('game_detail', game_id=game.id)
+
+    return redirect('a_game:game_detail', game_id=game.id)
 
 
 @login_required

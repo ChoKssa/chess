@@ -87,7 +87,6 @@
 
 					if (cell) {
 						if (square && square.piece && square.piece.type) {
-                            console.log(square.piece);
 							if (square.piece.type === 'Pawn') {
 								square.piece.type = square.piece.is_white ? '♟' : '♙';
 							} else if (square.piece.type === 'Rook') {

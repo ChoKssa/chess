@@ -85,10 +85,6 @@ class Board:
                     continue
                 if piece.isWhite == isWhite:
                     continue
-                # valid_moves = piece.getValidMoves(self)
-
-                # if piece.__class__.__name__ == "Pawn":
-                #     print(piece, valid_moves)
                 if king_position in piece.getValidMoves(self):
                     return True
         return False
@@ -124,9 +120,7 @@ class Board:
 
                 valid_moves = piece.getValidMoves(self)
                 for move in valid_moves:
-                    t = self.simulateMove(piece.position, move)
-                    if t == False:
-                        print("Not Checkmate")
+                    if not self.simulateMove(piece.position, move):
                         return False
         return True
 
@@ -172,7 +166,6 @@ class Board:
                     piece_type = type(cell.piece).__name__
                     symbol = piece_symbols.get(piece_type, "?")
                     row_str += (symbol.upper() if cell.piece.isWhite else symbol.lower()) + " "
-            print(row_str.strip())
 
     def __repr__(self):
         return f"Board(gridSize={self.gridSize}, board={self.board}, history={self.history}, captureHistory={self.captureHistory})"
